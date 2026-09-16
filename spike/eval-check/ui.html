@@ -1,0 +1,12 @@
+<body style="font:12px/1.5 ui-monospace,monospace;padding:10px">
+<div id="out">dang chay…</div>
+<script>
+onmessage = function (e) {
+  var rows = e.data.pluginMessage;
+  document.getElementById('out').innerHTML = rows.map(function (r) {
+    return '<div>' + (r.ok ? '✅' : '❌') + ' <b>' + r.name + '</b><br>'
+         + '<span style="color:#666">' + r.value + '</span></div>';
+  }).join('<hr>');
+};
+</script>
+</body>
