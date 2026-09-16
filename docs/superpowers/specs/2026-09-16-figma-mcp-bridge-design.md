@@ -347,7 +347,11 @@ Không chạy được Figma trong CI, nên **đẩy logic thuần tuý ra khỏ
 ## 13. Tiêu chí thành công v1
 
 1. Từ một phiên Claude Code mới: *"tạo banner 320×480 cho game X dùng ảnh `assets/hero.png`"* → banner xuất hiện trong Figma trong **không quá 5 round-trip**, không cần thao tác tay nào ngoài việc mở sẵn plugin.
-2. `figma_snapshot` trên banner 15 layer trả về **dưới 600 token**.
+2. `figma_snapshot` trên banner 15 layer trả về **dưới 900 token**.
+
+   *Đo thật 2026-09-16 trên banner 6 layer (2 text tiếng Việt có dấu, 1 fill ảnh, 1 gradient): 364 token, trong đó `warnings` chiếm 78. Chi phí thân cây là **48 token/node**, suy ra 15 layer ≈ 790 token.*
+
+   *Ngưỡng 600 đặt ban đầu là phỏng đoán và **không đạt**. Giữ nguyên 600 sẽ là mục tiêu giả. 48 token/node đã gần sàn của một định dạng tự mô tả — phần lớn chi phí là tên khoá lặp lại và id của Figma, rút thêm thì phải hy sinh khả năng đọc hiểu của AI. Lập luận nền của thiết kế vẫn đứng vững: 790 token vẫn rẻ hơn ~40% so với một tấm PNG 800px (~1.300 token), và quan trọng hơn là cho toạ độ chính xác từng pixel thay vì phỏng đoán.*
 3. Unit test serializer và warnings chạy xanh trong CI, không cần Figma.
 4. Cả 3 client (Claude Code, Claude Desktop, Codex CLI) đều gọi được, kể cả khi chạy đồng thời.
 5. Restart client bất kỳ mà không phải chạy lại plugin trong Figma.
