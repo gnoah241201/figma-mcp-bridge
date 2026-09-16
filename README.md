@@ -81,7 +81,7 @@ Claude Code còn tự nạp skill `.claude/skills/figma-design/` chứa recipe v
 npm test
 ```
 
-76 test, chạy hoàn toàn không cần Figma. Logic thuần tuý (serializer snapshot, warnings, màu/tương phản, allowlist đường dẫn, dispatcher op) nằm ngoài plugin nên kiểm được trong CI.
+79 test, chạy hoàn toàn không cần Figma. Logic thuần tuý (serializer snapshot, warnings, màu/tương phản, allowlist đường dẫn, dispatcher op) nằm ngoài plugin nên kiểm được trong CI.
 
 ## Kiến trúc
 
