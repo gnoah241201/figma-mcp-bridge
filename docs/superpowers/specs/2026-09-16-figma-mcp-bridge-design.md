@@ -162,7 +162,9 @@ Bắt buộc gắn lên `globalThis` vì eval của Figma không bắt closure.
 
 ### 6.4 `figma_export(nodeId, maxPx?)`
 
-Xuất PNG và trả ảnh về cho AI. `maxPx` mặc định `800`, trần cứng `1600`. Server tự resize trước khi trả.
+Xuất PNG và trả ảnh về cho AI. `maxPx` mặc định `800`, trần cứng `1600`.
+
+Resize thực hiện **ngay trong Figma** qua `exportAsync({constraint})` — ràng buộc theo cạnh dài hơn của node. Không cần thư viện xử lý ảnh native phía server.
 
 **Dùng khi** cần phán đoán nội dung raster hoặc thẩm mỹ — không phải bước kiểm tra mặc định (§7.3).
 
@@ -290,7 +292,7 @@ Trần **cứng trong server**, không phải lời khuyên trong prompt. AI kh�
 |---|---|---|
 | `figma_snapshot` | 300 node, depth 3 | Cắt + `{"omitted": 120, "hint": "chỉ định nodeId hẹp hơn"}` |
 | `figma_eval` kết quả | ~2KB | Cắt, gắn cờ `truncated` |
-| `figma_export` | mặc định 800px, trần cứng 1600px | Server tự resize trước khi trả |
+| `figma_export` | mặc định 800px, trần cứng 1600px | Figma resize qua `exportAsync({constraint})` |
 | Thông báo lỗi | 500 ký tự | Cắt |
 
 ### 9.1 Cơ sở của quyết định JSON-first
