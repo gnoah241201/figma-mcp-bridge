@@ -1,4 +1,5 @@
-import { toHex, fromHex } from '@figma-mcp/core';
+import { toHex, fromHex, buildSnapshot } from '@figma-mcp/core';
+import { readNode } from './ops.js';
 
 /**
  * Gắn lên globalThis, KHÔNG dùng closure — eval của Figma chạy ở global scope
@@ -36,6 +37,11 @@ export function installHelpers(): void {
     };
     walk(figma.currentPage, figma.currentPage.name);
     return [...byHash].map(([hash, usedBy]) => ({ hash, usedBy }));
+  };
+
+  g.snapshot = (node: BaseNode, opts: { depth?: number; maxNodes?: number } = {}) => {
+    const depth = opts.depth ?? 3;
+    return buildSnapshot(readNode(node, depth < 0 ? 50 : depth + 1), opts);
   };
 
   g.hex = toHex;
