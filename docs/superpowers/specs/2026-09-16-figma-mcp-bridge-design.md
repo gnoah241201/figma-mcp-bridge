@@ -1,7 +1,7 @@
 # Figma MCP Bridge — Thiết kế v1
 
 Ngày: 2026-09-16
-Trạng thái: Đã chốt thiết kế, chưa triển khai
+Trạng thái: Đã chốt thiết kế. Rủi ro số 1 đã xác minh đóng (§3). Đang triển khai.
 
 ## 1. Mục tiêu
 
@@ -35,21 +35,28 @@ Use case đầu tiên: **creative/banner quảng cáo game** và **icon/asset ga
 
 **Stack:** Node 20+ / TypeScript. `@modelcontextprotocol/sdk` cho MCP, `ws` cho WebSocket, `esbuild` để build plugin (cấu hình sourcemap không dùng eval).
 
-## 3. Rủi ro số 1 và phương án dự phòng
+## 3. Rủi ro số 1 — ĐÃ ĐÓNG
 
-**Rủi ro:** sandbox Figma có thể không cho phép chạy JavaScript tuỳ ý qua `eval` / `new Function`.
+**Rủi ro ban đầu:** sandbox Figma có thể không cho phép chạy JavaScript tuỳ ý qua `eval` / `new Function`.
 
-**Hiện trạng đã kiểm chứng:**
+**Đã xác minh bằng spike trên Figma Desktop (2026-09-16),** plugin độc lập tại `spike/eval-check/`. Cả 4 phép thử đều đạt:
 
-- Docs Figma chỉ nói `eval` "works differently than normal eval" — tức có tồn tại, ngữ nghĩa khác (nhiều khả năng chạy ở global scope, không bắt closure).
-- MCP `localfig` đang chạy thật với tool `figma_eval` thực thi JS tuỳ ý trong sandbox.
-- Hạn chế thường bị nhầm là "cấm eval" thực chất là hạn chế về *bundling* — không dùng được thư viện sinh code động.
+| Phép thử | Kết quả |
+|---|---|
+| `eval('1 + 1')` | ✅ `2` |
+| `eval('figma.currentPage.name')` | ✅ `Page 1` — chạm được Plugin API |
+| `new Function('return 2 + 3')()` | ✅ `5` |
+| `eval('(async function(){ return globalThis.__probe + 1; })()')` | ✅ `8` — async IIFE đọc `globalThis` |
 
-**Kết luận:** rất nhiều khả năng khả thi, nhưng **chưa tự tay xác minh**.
+Phép thử thứ tư là phép thử quyết định: nó kiểm tra đúng cơ chế `figma_eval` dùng thật — bọc async và đọc biến qua `globalThis` thay vì closure.
 
-**Hành động bắt buộc:** Spike 30 phút là việc đầu tiên (§12.2, bước 1). Dựng plugin rỗng, thử `eval` một biểu thức có gọi `figma.*` trong sandbox.
+**Kết luận:** hướng C-lite (eval-first) khả thi hoàn toàn. Không dùng phương án dự phòng.
 
-**Phương án dự phòng nếu spike thất bại:** đường ghi chuyển sang **DSL khai báo** — một tool `figma_apply(ops[])` nhận mảng thao tác có schema chặt (`createFrame`, `createText`, `setFill`, `placeImage`...), plugin dịch sang lời gọi Plugin API tĩnh. Toàn bộ phần còn lại của thiết kế (kiến trúc, snapshot, warnings, export, chặn token, kiểm thử) **giữ nguyên không đổi**. Đánh đổi: mất tính mở rộng bằng skill ở đường ghi, mỗi op mới phải sửa server.
+Hai ràng buộc rút ra vẫn phải tuân thủ:
+- Helper **bắt buộc gắn lên `globalThis`** — eval chạy ở global scope, không bắt closure của module.
+- Build plugin **phải tắt sourcemap kiểu eval** (`sourcemap: false` trong esbuild).
+
+**Phương án dự phòng (không dùng đến, giữ lại để tham khảo):** nếu spike thất bại, đường ghi sẽ chuyển sang DSL khai báo `figma_apply(ops[])` với schema chặt cho từng thao tác; phần còn lại của thiết kế không đổi.
 
 ## 4. Kiến trúc
 

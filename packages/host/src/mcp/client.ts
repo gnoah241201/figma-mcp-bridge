@@ -68,7 +68,7 @@ export class BridgeClient {
     this.waiting.clear();
   }
 
-  call(op: Op, payload?: unknown, timeoutMs = LIMITS.opTimeoutMs): Promise<unknown> {
+  call(op: Op, payload?: unknown, timeoutMs: number = LIMITS.opTimeoutMs): Promise<unknown> {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       return Promise.reject(new Error('Chưa kết nối tới bridge daemon'));
     }

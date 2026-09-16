@@ -1,4 +1,7 @@
 import { handleOp } from './ops.js';
+import { installHelpers } from './helpers.js';
+
+installHelpers();
 
 figma.showUI(__html__, { width: 300, height: 150 });
 
