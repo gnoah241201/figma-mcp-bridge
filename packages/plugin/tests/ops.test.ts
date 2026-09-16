@@ -40,7 +40,12 @@ describe('handleOp', () => {
 describe('collapse', () => {
   it('thu gọn node Figma thành id/name/type', async () => {
     const { collapse } = await import('../src/ops.js');
-    expect(collapse({ id: '1:2', name: 'BG', type: 'RECTANGLE', fills: [1, 2, 3], parent: {} }))
+    // Node Figma that la instance cua lop, khong phai object literal - xem
+    // nhom test "phan biet node Figma that voi object thuan" ben duoi.
+    class RectangleNode {
+      id = '1:2'; name = 'BG'; type = 'RECTANGLE'; fills = [1, 2, 3]; parent = {};
+    }
+    expect(collapse(new RectangleNode()))
       .toEqual({ id: '1:2', name: 'BG', type: 'RECTANGLE' });
   });
 
@@ -222,5 +227,33 @@ describe('op images', () => {
   it('báo lỗi khi không truyền load lẫn list', async () => {
     stubFigma();
     await expect(handleOp('images', {})).rejects.toThrow(/Can truyen load hoac list/);
+  });
+});
+
+describe('collapse: phân biệt node Figma thật với object thuần', () => {
+  class RectangleNode {
+    id = '1:2'; name = 'BG'; type = 'RECTANGLE'; width = 320; parent = null;
+  }
+
+  it('thu gọn node Figma thật (instance của lớp)', async () => {
+    const { collapse } = await import('../src/ops.js');
+    expect(collapse(new RectangleNode())).toEqual({ id: '1:2', name: 'BG', type: 'RECTANGLE' });
+  });
+
+  it('KHÔNG bóp méo kết quả snapshot() dù cũng có id và type', async () => {
+    const { collapse } = await import('../src/ops.js');
+    const snap = {
+      schema: 'figma-snapshot/1',
+      root: { id: '1:2', name: 'Banner', type: 'FRAME', x: 0, y: 0, w: 320, h: 480,
+              c: [{ id: '1:3', name: 'BG', type: 'RECTANGLE', x: 0, y: 0, w: 320, h: 480 }] },
+      warnings: [],
+    };
+    expect(collapse(snap)).toEqual(snap);
+  });
+
+  it('thu gọn node Figma nằm lồng bên trong object thuần', async () => {
+    const { collapse } = await import('../src/ops.js');
+    expect(collapse({ created: new RectangleNode(), count: 1 }))
+      .toEqual({ created: { id: '1:2', name: 'BG', type: 'RECTANGLE' }, count: 1 });
   });
 });

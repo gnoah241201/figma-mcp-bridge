@@ -34,11 +34,19 @@ export function collapse(value: unknown, seen = new WeakSet<object>(), depth = 0
   if (depth > 6) return '[quá sâu]';
   seen.add(value);
 
-  const node = value as { id?: unknown; type?: unknown; name?: unknown };
-  if (typeof node.id === 'string' && typeof node.type === 'string') {
-    return { id: node.id, name: node.name, type: node.type };
-  }
   if (Array.isArray(value)) return value.map((v) => collapse(v, seen, depth + 1));
+
+  // Chi thu gon NODE FIGMA THAT. Node Figma la instance cua lop (prototype
+  // RectangleNode, FrameNode...), con ket qua cua snapshot() la object thuan.
+  // Khong phan biet thi `return snapshot(frame)` bi bam nat con {id,name,type}.
+  const proto = Object.getPrototypeOf(value);
+  const isPlain = proto === Object.prototype || proto === null;
+  if (!isPlain) {
+    const node = value as { id?: unknown; type?: unknown; name?: unknown };
+    if (typeof node.id === 'string' && typeof node.type === 'string') {
+      return { id: node.id, name: node.name, type: node.type };
+    }
+  }
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(value)) out[k] = collapse(v, seen, depth + 1);
   return out;
