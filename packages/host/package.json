@@ -1,0 +1,16 @@
+{
+  "name": "@figma-mcp/host",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "figma-mcp-server": "./dist/mcp/main.js",
+    "figma-mcp-bridge": "./dist/bridge/main.js"
+  },
+  "dependencies": {
+    "@figma-mcp/core": "*",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": { "@types/ws": "^8.5.0" }
+}
