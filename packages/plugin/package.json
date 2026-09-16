@@ -1,0 +1,12 @@
+{
+  "name": "@figma-mcp/plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": { "@figma-mcp/core": "*" },
+  "devDependencies": { "@figma/plugin-typings": "^1.100.0", "esbuild": "^0.24.0" }
+}
